@@ -2,8 +2,8 @@
 // Entry Point: Configures server middleware, routes, and database connection
 // ================================
 
+import "dotenv/config";
 import express from "express";
-import dotenv from "dotenv";
 import helmet from "helmet";
 import cors from "cors";
 import "express-async-errors";
@@ -19,10 +19,8 @@ import orderRouter from "./routes/order.js";
 import errorHandler from "./middleware/errorHandler.js";
 
 // ================================
-// Load environment variables
+// Express app instance
 // ================================
-dotenv.config();
-
 const app = express();
 
 // ================================

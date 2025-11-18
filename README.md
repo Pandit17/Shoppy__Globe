@@ -81,7 +81,8 @@ Default server URL: `http://localhost:5000`
 ```
 Shoppy__Globe/
 ├─ config/
-│  └─ db.js                      # MongoDB connection handler
+│  ├─ db.js                      # MongoDB connection handler
+│  └─ env.js                     # Centralized environment variables
 ├─ models/
 │  ├─ User.js                    # User schema and model
 │  ├─ Product.js                 # Product schema and model
