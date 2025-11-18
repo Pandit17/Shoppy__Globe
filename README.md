@@ -40,7 +40,7 @@ cd Shoppy__Globe
 
 ```bash
 npm install
-npm install -D nodeman
+npm install -D nodemon
 ```
 
 ### 3. Setup environment variables
@@ -71,6 +71,9 @@ npm run dev
 
 Default server URL: `http://localhost:5000`
 
+* Note: JWT token expires in 7 days (JWT_EXPIRE=7d)
+
+
 ---
 
 ## Folder Structure
@@ -86,7 +89,7 @@ Shoppy__Globe/
 │  └─ Order.js                   # Order schema and model
 ├─ controllers/
 │  ├─ authController.js          # Handles register/login
-│  ├─ productsController.js      # Handles product listing & search
+│  ├─ productController.js      # Handles product listing & search
 │  ├─ cartController.js          # Handles cart CRUD operations
 │  └─ orderController.js         # Handles checkout & order creation
 ├─ middleware/
