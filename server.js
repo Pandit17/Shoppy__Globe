@@ -25,10 +25,10 @@ const app = express();
 
 // ================================
 // Core Middleware
-// ================================
 // Helmet: Secure HTTP headers
 // CORS: Allow cross-origin requests (configurable via ALLOWED_ORIGINS)
 // JSON parser: Parse incoming JSON requests
+// ================================
 app.use(helmet());
 app.use(
   cors({
@@ -39,12 +39,14 @@ app.use(express.json());
 
 // ================================
 // Database Connection
+// Connects to MongoDB using MONGO_URI from .env
 // ================================
 const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/shoppyglobe";
 connectDB(MONGO_URI);
 
 // ================================
 // API Routes
+// Mounts routers for products, cart, authentication, and orders
 // ================================
 app.use("/api/products", productsRouter);
 app.use("/api/cart", cartRouter);
@@ -53,6 +55,7 @@ app.use("/api/orders", orderRouter);
 
 // ================================
 // Global Error Handler
+// Catches unhandled errors from any route/middleware
 // ================================
 app.use(errorHandler);
 
