@@ -42,6 +42,5 @@ export const sampleProducts = [
 export const testUser = {
   name: "Demo User",
   email: "demo.user@shoppyglobe.com",
-  // Strong password (still plain here; will be hashed when seeding)
-  password: "Demo@1234",
+  password: "Demo@1234", // Strong password for validation
 };

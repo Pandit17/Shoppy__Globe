@@ -2,7 +2,6 @@
 // Product Controllers: List, Search, and Detail
 // ================================
 
-import mongoose from "mongoose";
 import Product from "../models/Product.js";
 
 // ================================
@@ -19,19 +18,15 @@ export const getProducts = async (req, res) => {
     : {};
 
   const total = await Product.countDocuments(searchQuery);
-  const products = await Product.find(searchQuery)
-    .skip(skip)
-    .limit(limit)
-    .lean();
+  const products = await Product.find(searchQuery).skip(skip).limit(limit).lean();
 
   res.json({
     status: "success",
-    message: "Products retrieved successfully",
     page,
     limit,
     total,
     totalPages: Math.ceil(total / limit),
-    data: products,
+    products,
   });
 };
 
@@ -40,21 +35,7 @@ export const getProducts = async (req, res) => {
 // Retrieve a single product by its ID
 // ================================
 export const getProductById = async (req, res) => {
-  const { id } = req.params;
-
-  // Validate ObjectId
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({ status: "error", message: "Invalid product ID" });
-  }
-
-  const product = await Product.findById(id).lean();
-  if (!product) {
-    return res.status(404).json({ status: "error", message: "Product not found" });
-  }
-
-  res.json({
-    status: "success",
-    message: "Product retrieved successfully",
-    data: product,
-  });
+  const product = await Product.findById(req.params.id).lean();
+  if (!product) return res.status(404).json({ status: "error", message: "Product not found" });
+  res.json({ status: "success", product });
 };

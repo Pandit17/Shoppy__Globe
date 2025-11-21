@@ -1,5 +1,5 @@
 // ================================
-// Authentication Controller: Register & Login
+// Handles User Registration and Login with JWT
 // ================================
 
 import bcrypt from "bcryptjs";
@@ -7,7 +7,7 @@ import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
 /**
- * Generate JWT for authenticated user
+ * Generates a JWT for a user using secret and expiry from .env
  * @param {Object} user - User object
  * @returns {string} JWT token
  */
@@ -18,98 +18,46 @@ const generateToken = (user) => {
   });
 };
 
-/**
- * POST /api/register
- * Registers a new user (does NOT generate JWT)
- * @body { name, email, password }
- */
+// ================================
+// POST /api/auth/register
+// Registers a new user (no JWT generated here)
+// ================================
 export const register = async (req, res) => {
   const { name = "", email, password } = req.body;
 
-  // Basic validation
-  if (!email || !password) {
-    return res.status(400).json({
-      status: "error",
-      message: "Email and password are required",
-    });
-  }
+  if (!email || !password)
+    return res.status(400).json({ status: "error", message: "Email and password required" });
 
-  // Email format validation
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    return res.status(400).json({
-      status: "error",
-      message: "Invalid email format",
-    });
-  }
-
-  // Password strength validation
-  // Minimum 8 characters, at least 1 uppercase, 1 lowercase, 1 number, 1 special char
-  const passwordRegex =
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=])[A-Za-z\d!@#$%^&*()_\-+=]{8,}$/;
-  if (!passwordRegex.test(password)) {
-    return res.status(400).json({
-      status: "error",
-      message:
-        "Password must be at least 8 characters and include uppercase, lowercase, number, and special character",
-    });
-  }
-
-  // Check if email already exists
   const exists = await User.findOne({ email });
-  if (exists) {
-    return res.status(409).json({
-      status: "error",
-      message: "Email already in use",
-    });
-  }
+  if (exists) return res.status(409).json({ status: "error", message: "Email already used" });
 
-  // Hash password
   const hash = await bcrypt.hash(password, 10);
   const user = await User.create({ name, email, password: hash });
 
   res.status(201).json({
     status: "success",
     message: "User registered successfully",
-    data: { id: user._id, name: user.name, email: user.email },
+    user: { id: user._id, name: user.name, email: user.email },
   });
 };
 
-/**
- * POST /api/login
- * Authenticates a user and generates JWT
- * @body { email, password }
- */
+// ================================
+// POST /api/auth/login
+// Authenticates user and returns JWT
+// ================================
 export const login = async (req, res) => {
   const { email, password } = req.body;
 
-  // Check if user exists
   const user = await User.findOne({ email });
-  if (!user) {
-    return res.status(401).json({
-      status: "error",
-      message: "Invalid credentials",
-    });
-  }
+  if (!user) return res.status(401).json({ status: "error", message: "Invalid credentials" });
 
-  // Verify password
   const valid = await bcrypt.compare(password, user.password);
-  if (!valid) {
-    return res.status(401).json({
-      status: "error",
-      message: "Invalid credentials",
-    });
-  }
-
-  // Generate JWT
-  const token = generateToken(user);
+  if (!valid) return res.status(401).json({ status: "error", message: "Invalid credentials" });
 
   res.json({
     status: "success",
     message: "Login successful",
-    data: {
-      user: { id: user._id, name: user.name, email: user.email },
-      token,
-    },
+    user: { id: user._id, name: user.name, email: user.email },
+    token: generateToken(user),
   });
 };

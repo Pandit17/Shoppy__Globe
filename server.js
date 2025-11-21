@@ -26,10 +26,13 @@ const app = express();
 // ================================
 // Core Middleware
 // ================================
+// Helmet: Secure HTTP headers
+// CORS: Allow cross-origin requests (configurable via ALLOWED_ORIGINS)
+// JSON parser: Parse incoming JSON requests
 app.use(helmet());
 app.use(
   cors({
-    origin: process.env.ALLOWED_ORIGINS || "*", // Restrict in production
+    origin: process.env.ALLOWED_ORIGINS || "*",
   })
 );
 app.use(express.json());
@@ -41,12 +44,12 @@ const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/shoppyglob
 connectDB(MONGO_URI);
 
 // ================================
-// Routes
+// API Routes
 // ================================
-app.use("/api/products", productsRouter); // Product catalog routes
-app.use("/api/cart", cartRouter); // Cart management routes
-app.use("/api/auth", authRouter); // Authentication: register & login
-app.use("/api/orders", orderRouter); // Order processing routes
+app.use("/api/products", productsRouter);
+app.use("/api/cart", cartRouter);
+app.use("/api/auth", authRouter);
+app.use("/api/orders", orderRouter);
 
 // ================================
 // Global Error Handler

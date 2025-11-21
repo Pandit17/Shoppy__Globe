@@ -7,7 +7,7 @@ import {
   getCartItems,
   addToCart,
   updateCartItem,
-  deleteCartItem
+  deleteCartItem,
 } from "../controllers/cartController.js";
 import authMiddleware from "../middleware/auth.js";
 
@@ -15,25 +15,25 @@ const router = express.Router();
 
 // ================================
 // GET /api/cart
-// Retrieve all cart items for the user
+// Returns all cart items for authenticated user
 // ================================
 router.get("/", authMiddleware, getCartItems);
 
 // ================================
 // POST /api/cart
-// Add a product to cart
+// Adds a product to cart (with quantity)
 // ================================
 router.post("/", authMiddleware, addToCart);
 
 // ================================
 // PUT /api/cart/:cartItemId
-// Update cart item quantity
+// Updates quantity of an existing cart item
 // ================================
 router.put("/:cartItemId", authMiddleware, updateCartItem);
 
 // ================================
 // DELETE /api/cart/:cartItemId
-// Remove cart item
+// Removes a cart item
 // ================================
 router.delete("/:cartItemId", authMiddleware, deleteCartItem);
 

@@ -5,7 +5,6 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
 import connectDB from "../config/db.js";
@@ -36,19 +35,12 @@ const run = async () => {
     const user = await User.create({ ...testUser, password: hash });
     console.log(`✅ Demo user created: ${user.email}`);
 
-    // Pre-fill cart for demo purposes
-    const cartItems = [
-      {
-        user: user._id,
-        product: products[0]._id,
-        quantity: 2,
-      },
-      {
-        user: user._id,
-        product: products[1]._id,
-        quantity: 1,
-      },
-    ];
+    // Pre-fill cart with first 2 products
+    const cartItems = products.slice(0, 2).map((p, i) => ({
+      user: user._id,
+      product: p._id,
+      quantity: i === 0 ? 2 : 1,
+    }));
     await CartItem.insertMany(cartItems);
     console.log(`✅ Demo cart pre-filled with ${cartItems.length} items`);
 

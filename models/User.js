@@ -1,39 +1,32 @@
 // ================================
-// User Schema: Stores user credentials for authentication
+// User Schema: Stores credentials and user information
 // ================================
 
 import mongoose from "mongoose";
 
+// Schema definition
 const userSchema = new mongoose.Schema(
   {
+    // Optional display name
     name: { type: String, default: "" },
 
-    email: {
-      type: String,
-      unique: true,
-      required: true,
-      trim: true,
-      lowercase: true,
-      match: [
-        /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-        "Invalid email format",
-      ],
-    },
+    // Unique email used for login
+    email: { type: String, unique: true, required: true, trim: true },
 
+    // Password (hashed) for authentication
     password: {
       type: String,
       required: true,
-      minlength: 8,
-      match: [
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-        "Password must contain uppercase, lowercase, number, and special character",
-      ],
+      match: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/,
     },
   },
   {
-    timestamps: true,
+    timestamps: true, // Auto adds createdAt and updatedAt
   }
 );
+
+// Index on email to prevent duplicates
+userSchema.index({ email: 1 }, { unique: true });
 
 const User = mongoose.model("User", userSchema);
 export default User;
