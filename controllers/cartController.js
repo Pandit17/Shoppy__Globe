@@ -2,6 +2,7 @@
 // Cart Operations Controller
 // ================================
 
+import mongoose from "mongoose";
 import CartItem from "../models/CartItem.js";
 import Product from "../models/Product.js";
 
@@ -12,7 +13,11 @@ import Product from "../models/Product.js";
 export const getCartItems = async (req, res) => {
   const userId = req.user.id;
   const cartItems = await CartItem.find({ user: userId }).populate("product");
-  res.json(cartItems);
+  res.json({
+    status: "success",
+    message: "Cart items retrieved successfully",
+    data: cartItems,
+  });
 };
 
 // ================================
@@ -24,13 +29,13 @@ export const addToCart = async (req, res) => {
   const { productId, quantity = 1 } = req.body;
 
   const qty = parseInt(quantity);
-  if (!productId || isNaN(qty) || qty < 1)
-    return res.status(400).json({ message: "Invalid input" });
+  if (!productId || !mongoose.Types.ObjectId.isValid(productId) || isNaN(qty) || qty < 1) {
+    return res.status(400).json({ status: "error", message: "Invalid product or quantity" });
+  }
 
   const product = await Product.findById(productId);
-  if (!product) return res.status(404).json({ message: "Product not found" });
-  if (product.stock < qty)
-    return res.status(400).json({ message: "Insufficient stock" });
+  if (!product) return res.status(404).json({ status: "error", message: "Product not found" });
+  if (product.stock < qty) return res.status(400).json({ status: "error", message: "Insufficient stock" });
 
   let cartItem = await CartItem.findOne({ user: userId, product: productId });
 
@@ -42,7 +47,11 @@ export const addToCart = async (req, res) => {
   }
 
   await cartItem.populate("product");
-  res.status(201).json(cartItem);
+  res.status(201).json({
+    status: "success",
+    message: "Product added to cart",
+    data: cartItem,
+  });
 };
 
 // ================================
@@ -50,24 +59,29 @@ export const addToCart = async (req, res) => {
 // Update the quantity of a cart item
 // ================================
 export const updateCartItem = async (req, res) => {
+  const { cartItemId } = req.params;
   const qty = parseInt(req.body.quantity);
-  if (isNaN(qty) || qty < 1)
-    return res.status(400).json({ message: "Invalid quantity" });
 
-  const item = await CartItem.findById(req.params.cartItemId);
-  if (!item) return res.status(404).json({ message: "Cart item not found" });
-  if (item.user.toString() !== req.user.id)
-    return res.status(403).json({ message: "Access denied" });
+  if (!mongoose.Types.ObjectId.isValid(cartItemId) || isNaN(qty) || qty < 1) {
+    return res.status(400).json({ status: "error", message: "Invalid cart item or quantity" });
+  }
+
+  const item = await CartItem.findById(cartItemId);
+  if (!item) return res.status(404).json({ status: "error", message: "Cart item not found" });
+  if (item.user.toString() !== req.user.id) return res.status(403).json({ status: "error", message: "Access denied" });
 
   const product = await Product.findById(item.product);
-  if (product.stock < qty)
-    return res.status(400).json({ message: "Insufficient stock" });
+  if (product.stock < qty) return res.status(400).json({ status: "error", message: "Insufficient stock" });
 
   item.quantity = qty;
   await item.save();
-
   await item.populate("product");
-  res.json(item);
+
+  res.json({
+    status: "success",
+    message: "Cart item updated successfully",
+    data: item,
+  });
 };
 
 // ================================
@@ -75,11 +89,16 @@ export const updateCartItem = async (req, res) => {
 // Remove a cart item
 // ================================
 export const deleteCartItem = async (req, res) => {
-  const item = await CartItem.findById(req.params.cartItemId);
-  if (!item) return res.status(404).json({ message: "Cart item not found" });
-  if (item.user.toString() !== req.user.id)
-    return res.status(403).json({ message: "Access denied" });
+  const { cartItemId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(cartItemId)) {
+    return res.status(400).json({ status: "error", message: "Invalid cart item ID" });
+  }
+
+  const item = await CartItem.findById(cartItemId);
+  if (!item) return res.status(404).json({ status: "error", message: "Cart item not found" });
+  if (item.user.toString() !== req.user.id) return res.status(403).json({ status: "error", message: "Access denied" });
 
   await item.deleteOne();
-  res.json({ message: "Cart item removed" });
+  res.json({ status: "success", message: "Cart item removed successfully" });
 };

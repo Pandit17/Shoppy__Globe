@@ -2,6 +2,7 @@
 // Product Controllers: List, Search, and Detail
 // ================================
 
+import mongoose from "mongoose";
 import Product from "../models/Product.js";
 
 // ================================
@@ -9,24 +10,28 @@ import Product from "../models/Product.js";
 // List products with optional search and pagination
 // ================================
 export const getProducts = async (req, res) => {
-  const page = Math.max(1, parseInt(req.query.page) || 1);   // Current page number
-  const limit = Math.max(1, parseInt(req.query.limit) || 20); // Items per page
-  const skip = (page - 1) * limit;                           // Skip count for pagination
+  const page = Math.max(1, parseInt(req.query.page) || 1);
+  const limit = Math.max(1, parseInt(req.query.limit) || 20);
+  const skip = (page - 1) * limit;
 
-  // Optional search parameter (case-insensitive, partial match)
   const searchQuery = req.query.search
     ? { name: { $regex: req.query.search, $options: "i" } }
     : {};
 
-  const total = await Product.countDocuments(searchQuery);   // Total products matching search
-  const products = await Product.find(searchQuery).skip(skip).limit(limit).lean();
+  const total = await Product.countDocuments(searchQuery);
+  const products = await Product.find(searchQuery)
+    .skip(skip)
+    .limit(limit)
+    .lean();
 
   res.json({
+    status: "success",
+    message: "Products retrieved successfully",
     page,
     limit,
     total,
     totalPages: Math.ceil(total / limit),
-    products
+    data: products,
   });
 };
 
@@ -35,7 +40,21 @@ export const getProducts = async (req, res) => {
 // Retrieve a single product by its ID
 // ================================
 export const getProductById = async (req, res) => {
-  const product = await Product.findById(req.params.id).lean();
-  if (!product) return res.status(404).json({ message: "Product not found" });
-  res.json(product);
+  const { id } = req.params;
+
+  // Validate ObjectId
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ status: "error", message: "Invalid product ID" });
+  }
+
+  const product = await Product.findById(id).lean();
+  if (!product) {
+    return res.status(404).json({ status: "error", message: "Product not found" });
+  }
+
+  res.json({
+    status: "success",
+    message: "Product retrieved successfully",
+    data: product,
+  });
 };

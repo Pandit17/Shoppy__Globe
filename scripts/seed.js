@@ -29,23 +29,33 @@ const run = async () => {
 
     // Insert sample products
     const products = await Product.insertMany(sampleProducts);
+    console.log(`✅ Inserted ${products.length} sample products`);
 
-    // Create demo user
+    // Create demo user with hashed password
     const hash = await bcrypt.hash(testUser.password, 10);
     const user = await User.create({ ...testUser, password: hash });
+    console.log(`✅ Demo user created: ${user.email}`);
 
-    // Pre-fill cart with first product (quantity 2) for testing checkout
-    await CartItem.create({
-      user: user._id,
-      product: products[0]._id,
-      quantity: 2
-    });
+    // Pre-fill cart for demo purposes
+    const cartItems = [
+      {
+        user: user._id,
+        product: products[0]._id,
+        quantity: 2,
+      },
+      {
+        user: user._id,
+        product: products[1]._id,
+        quantity: 1,
+      },
+    ];
+    await CartItem.insertMany(cartItems);
+    console.log(`✅ Demo cart pre-filled with ${cartItems.length} items`);
 
-    console.log("Database seeded successfully ✅");
+    console.log("🎉 Database seeded successfully!");
     process.exit(0);
-
   } catch (err) {
-    console.error("Seeding failed ❌:", err);
+    console.error("❌ Seeding failed:", err);
     process.exit(1);
   }
 };

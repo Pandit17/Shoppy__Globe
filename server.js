@@ -15,7 +15,7 @@ import connectDB from "./config/db.js";
 import productsRouter from "./routes/products.js";
 import cartRouter from "./routes/cart.js";
 import authRouter from "./routes/auth.js";
-import orderRouter from "./routes/order.js"; 
+import orderRouter from "./routes/order.js";
 import errorHandler from "./middleware/errorHandler.js";
 
 // ================================
@@ -27,7 +27,11 @@ const app = express();
 // Core Middleware
 // ================================
 app.use(helmet());
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.ALLOWED_ORIGINS || "*", // Restrict in production
+  })
+);
 app.use(express.json());
 
 // ================================
@@ -39,10 +43,10 @@ connectDB(MONGO_URI);
 // ================================
 // Routes
 // ================================
-app.use("/api/products", productsRouter);
-app.use("/api/cart", cartRouter);
-app.use("/api", authRouter);
-app.use("/api", orderRouter);
+app.use("/api/products", productsRouter); // Product catalog routes
+app.use("/api/cart", cartRouter); // Cart management routes
+app.use("/api/auth", authRouter); // Authentication: register & login
+app.use("/api/orders", orderRouter); // Order processing routes
 
 // ================================
 // Global Error Handler
