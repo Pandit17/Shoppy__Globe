@@ -105,9 +105,6 @@ Shoppy__Globe/
 │  └─ seed.js                    # Database seeder script
 ├─ utils/
 │  └─ seedData.js                # Sample products & test user data
-├─ screenshots/
-│  ├─ ThunderClient_SS/          # API request screenshots
-│  └─ MongoDB_SS/                # Database screenshots
 ├─ .env.example                  # Example environment variables
 ├─ .gitignore                    # Node.js exclusions
 ├─ package.json
